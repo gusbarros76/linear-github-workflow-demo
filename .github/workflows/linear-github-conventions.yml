@@ -1,0 +1,43 @@
+name: Linear ↔ GitHub conventions
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name and Linear issue reference
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const headRef = context.payload.pull_request.head.ref;
+            const title = context.payload.pull_request.title || "";
+            const body = context.payload.pull_request.body || "";
+
+            // Branch: linear/<ISSUE-ID>-<short-description>
+            // Example: linear/ABC-123-crud-alunos
+            const branchRe = /^linear\/([A-Z][A-Z0-9]+-\d+)-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+            const match = headRef.match(branchRe);
+
+            if (!match) {
+              core.setFailed(
+                `Invalid branch: "${headRef}". Use: linear/<ISSUE-ID>-<short-description> (e.g. linear/ABC-123-crud-alunos)`
+              );
+              return;
+            }
+
+            const issueId = match[1];
+            const haystack = `${title}\n${body}`;
+
+            if (!haystack.includes(issueId)) {
+              core.setFailed(
+                `PR must reference ${issueId} in the title or description so Linear can auto-link.`
+              );
+              return;
+            }
+
