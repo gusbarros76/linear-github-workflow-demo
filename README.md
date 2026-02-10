@@ -6,3 +6,4 @@ Demo de um workflow padrão de mercado para integrar Linear ↔ GitHub usando:
 - PR referenciando o `ISSUE-ID` no título ou descrição
 - check de CI que valida as convenções
 
+Demo Linear issue: `DEMO-1`
